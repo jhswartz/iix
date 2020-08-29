@@ -60,7 +60,7 @@ static void cleanup(void);
 
 static bool handle_signals(void);
 
-static bool reconfigure_ctty(void);
+static bool configure_raw_ctty(void);
 static void reset_ctty(void);
 
 static bool open_pty(void);
@@ -115,11 +115,6 @@ int main(int argc, char *argv[])
 		return EXIT_FAILURE;
 	}
 
-	if (!reconfigure_ctty())
-	{
-		return EXIT_FAILURE;
-	}
-
 	if (!open_pty())
 	{
 		return EXIT_FAILURE;
@@ -159,7 +154,7 @@ static bool parse_command_line(int argc, char *argv[])
 {
 	while (true)
 	{
-		int option = getopt(argc, argv, "hf:p:t:");
+		int option = getopt(argc, argv, "hf:p:r");
 
 		if (option == -1)
 		{
@@ -183,6 +178,14 @@ static bool parse_command_line(int argc, char *argv[])
 		else if (option == 'p')
 		{
 			if (!add_pipe_input(optarg))
+			{
+				return false;
+			}
+		}
+
+		else if (option == 'r')
+		{
+			if (!configure_raw_ctty())
 			{
 				return false;
 			}
@@ -221,6 +224,7 @@ static void display_usage(FILE *stream)
 	fprintf(stream, "Options:\n");
 	fprintf(stream, " -f file\tread from a file\n");
 	fprintf(stream, " -p pipe\tread from a named pipe\n");
+	fprintf(stream, " -r\t\tconfigure the controlling tty for raw mode\n");
 	fprintf(stream, " --\t\tstop option scanning\n");
 	fprintf(stream, "\n");
 }
@@ -246,17 +250,17 @@ static bool handle_signals(void)
 	return true;
 }
 
-static bool reconfigure_ctty(void)
+static bool configure_raw_ctty(void)
 {
 	if (tcgetattr(STDIN_FILENO, &ctty.attributes) == -1)
 	{
-		perror("reconfigure_ctty: tcgetattr");
+		perror("configure_raw_ctty: tcgetattr");
 		return false;
 	}
 
 	if (atexit(reset_ctty))
 	{
-		fprintf(stderr, "reconfigure_ctty: atexit\n");
+		fprintf(stderr, "configure_raw_ctty: atexit\n");
 		return false;
 	}
 
@@ -271,7 +275,7 @@ static bool reconfigure_ctty(void)
 
 	if (tcsetattr(STDIN_FILENO, TCSANOW, &attributes) == -1)
 	{
-		perror("reconfigure_ctty: tcsetattr");
+		perror("configure_raw_ctty: tcsetattr");
 		return false;
 	}
 
