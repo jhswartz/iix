@@ -1,4 +1,4 @@
-AC_INIT([iix], [0.1], [bugs@risingedge.co.za])
+AC_INIT([iix], [0.2], [bugs@risingedge.co.za])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 
 AC_PROG_CC_C99

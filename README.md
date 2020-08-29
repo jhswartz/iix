@@ -11,6 +11,8 @@ iix [options] program [arguments]
 ```
  -f file        read from a file
  -p pipe        read from a named pipe
+ -r             configure the controlling tty for raw mode
+ --             stop option scanning
 ```
 
 ### Description
@@ -26,8 +28,8 @@ $ make maintainer-clean
 
 ### Installation
 ```
-$ tar xvf iix-0.1.tar.gz
-$ cd iix-0.1
+$ tar xvf iix-0.2.tar.gz
+$ cd iix-0.2
 $ ./configure
 $ make
 # make install
